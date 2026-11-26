@@ -1700,3 +1700,58 @@ SELECT '#';
 
 /* # */
 -- ^ comment.block - keyword.operator
+
+
+-- NOTES:
+--   Block comments nest in PostgreSQL, unlike in MySQL.
+--   https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-COMMENTS
+
+/* outer /* inner */ still outer */ SELECT 1;
+-- <- comment.block.sql punctuation.definition.comment.begin.sql
+--^^^^^^^ comment.block.sql - comment.block comment.block
+--       ^^^^^^^^^^^ comment.block.sql comment.block.sql
+--       ^^ punctuation.definition.comment.begin.sql
+--                ^^ punctuation.definition.comment.end.sql
+--                  ^^^^^^^^^^^^^ comment.block.sql - comment.block comment.block
+--                               ^^ comment.block.sql punctuation.definition.comment.end.sql
+--                                 ^ - comment
+--                                  ^^^^^^ keyword.other.dml - comment
+
+/* multiline comment
+-- <- comment.block.sql punctuation.definition.comment.begin.sql
+ * with nesting: /* nested block comment */
+-- ^^^^^^^^^^^^^ comment.block.sql - comment.block comment.block
+--               ^^^^^^^^^^^^^^^^^^^^^^^^^^ comment.block.sql comment.block.sql
+   */
+-- ^^ comment.block.sql punctuation.definition.comment.end.sql
+SELECT 1;
+-- <- keyword.other.dml - comment
+
+/* 1 /* 2 /* 3 */ 2 */ 1 */ SELECT 1;
+-- ^ comment.block - comment.block comment.block
+--      ^ comment.block comment.block - comment.block comment.block comment.block
+--           ^ comment.block comment.block comment.block
+--                ^ comment.block comment.block - comment.block comment.block comment.block
+--                     ^ comment.block - comment.block comment.block
+--                          ^^^^^^ keyword.other.dml - comment
+
+/* /**/ */ SELECT 1;
+-- ^^^^ comment.block comment.block
+--      ^^ comment.block.sql punctuation.definition.comment.end.sql - comment.block comment.block
+--         ^^^^^^ keyword.other.dml - comment
+
+/* -- /* line comment markers don't stop nesting */ still comment */ SELECT 1;
+--    ^^ comment.block comment.block punctuation.definition.comment.begin.sql
+--                                                 ^^^^^^^^^^^^^^^ comment.block - comment.block comment.block
+--                                                                   ^^^^^^ keyword.other.dml - comment
+
+/** doc /* nested */ still doc */ SELECT 1;
+-- <- comment.block.documentation.sql punctuation.definition.comment.begin.sql
+--      ^^^^^^^^^^^^ comment.block.documentation.sql comment.block.sql
+--                  ^^^^^^^^^^^ comment.block.documentation.sql - comment.block.documentation comment.block
+--                             ^^ comment.block.documentation.sql punctuation.definition.comment.end.sql
+--                                ^^^^^^ keyword.other.dml - comment
+
+-- /* a block comment start inside a line comment doesn't open a block comment
+SELECT 1;
+-- <- keyword.other.dml - comment

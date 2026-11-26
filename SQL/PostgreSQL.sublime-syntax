@@ -57,6 +57,16 @@ contexts:
       scope: punctuation.definition.comment.sql
       push: inside-double-dash-comment
 
+  # PostgreSQL block comments nest, as specified in the SQL standard.
+  # https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-COMMENTS
+  inside-comment-docblock:
+    - meta_prepend: true
+    - include: block-comments
+
+  inside-comment-block:
+    - meta_prepend: true
+    - include: block-comments
+
   # Reset MySQL's '#'-comment context rule
   number-sign-comments: []
 
